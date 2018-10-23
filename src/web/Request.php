@@ -23,13 +23,16 @@ class Request extends \yii\web\Request
     /* @var $swooleRequest \swoole_http_request */
     public $swooleRequest;
 
+    private $_rawBody;
+
     /**
-     * Returns the raw HTTP request body.
-     * @return string the request body
-     * @todo https://github.com/swoole/swoole-src/issues/2056
+     * @inheritdoc
      */
     public function getRawBody()
     {
-        return $this->swooleRequest->rawContent();
+        if ($this->_rawBody === null) {
+            $this->_rawBody = $this->swooleRequest->rawContent();
+        }
+        return $this->_rawBody;
     }
 }

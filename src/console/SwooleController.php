@@ -157,8 +157,6 @@ class SwooleController extends \yii\console\Controller
 
                     $application->state = Application::STATE_SENDING_RESPONSE;
 
-                    //var_dump($application->request->getCookies());
-
                     $yiiresponse->send();
 
                     $application->state = Application::STATE_END;
@@ -238,5 +236,4 @@ class SwooleController extends \yii\console\Controller
         }
         return false;
     }
-
 }
