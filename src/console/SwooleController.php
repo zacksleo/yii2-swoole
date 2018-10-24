@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Author: lf
  * Blog: https://blog.feehi.com
@@ -56,16 +57,16 @@ class SwooleController extends \yii\console\Controller
 
     public function actionStart()
     {
-        if( $this->getPid() !== false ){
+        if ($this->getPid() !== false) {
             $this->stderr("server already  started");
             exit(1);
         }
 
         $pidDir = dirname($this->swooleConfig['pid_file']);
-        if( !file_exists($pidDir) ) FileHelper::createDirectory($pidDir);
+        if (!file_exists($pidDir)) FileHelper::createDirectory($pidDir);
 
         $logDir = dirname($this->swooleConfig['log_file']);
-        if( !file_exists($logDir) ) FileHelper::createDirectory($logDir);
+        if (!file_exists($logDir)) FileHelper::createDirectory($logDir);
 
         $rootDir = $this->rootDir;//yii2项目根目录
         $web = $rootDir . $this->app . DIRECTORY_SEPARATOR . $this->web;;
@@ -75,9 +76,9 @@ class SwooleController extends \yii\console\Controller
 
         require($rootDir . '/vendor/autoload.php');
         //require($rootDir . '/vendor/yiisoft/yii2/Yii.php');
-        if( $this->type == 'basic' ){
+        if ($this->type == 'basic') {
             $config = require($rootDir . '/config/web.php');
-        }else {
+        } else {
             require($rootDir . '/common/config/bootstrap.php');
             require($rootDir . $this->app . '/config/bootstrap.php');
 
@@ -94,7 +95,7 @@ class SwooleController extends \yii\console\Controller
             'enable_static_handler' => true,
         ], $this->swooleConfig);
 
-        $server = new SwooleServer($this->host, $this->port, $this->mode, $this->socketType, $this->swooleConfig, ['gcSessionInterval'=>$this->gcSessionInterval]);
+        $server = new SwooleServer($this->host, $this->port, $this->mode, $this->socketType, $this->swooleConfig, ['gcSessionInterval' => $this->gcSessionInterval]);
 
         /**
          * @param \swoole_http_request $request
@@ -120,15 +121,15 @@ class SwooleController extends \yii\console\Controller
             ];
             $config['components']['response'] = isset($config['components']['response']) ? array_merge($config['components']['response'], $responseComponent) : $responseComponent;
 
-            $config['components']['session'] = isset($config['components']['session']) ? array_merge(['savePath'=>$web . '/../runtime/session'], $config['components']['session'],  ["class" => Session::className()]) :  ["class" => Session::className(), 'savePath'=>$web . '/../session'];
+            $config['components']['session'] = isset($config['components']['session']) ? array_merge(['savePath' => $web . '/../runtime/session'], $config['components']['session'], ["class" => Session::className()]) : ["class" => Session::className(), 'savePath' => $web . '/../session'];
 
             $config['components']['errorHandler'] = isset($config['components']['errorHandler']) ? array_merge($config['components']['errorHandler'], ["class" => ErrorHandler::className()]) : ["class" => ErrorHandler::className()];
 
-            if( isset($config['components']['log']) ){
+            if (isset($config['components']['log'])) {
                 $config['components']['log'] = array_merge($config['components']['log'], ["class" => Dispatcher::className(), 'logger' => Logger::className()]);
             }
 
-            if( isset($config['modules']['debug']) ){
+            if (isset($config['modules']['debug'])) {
                 $config['modules']['debug'] = array_merge($config['modules']['debug'], [
                     "class" => Module::className(),
                     'panels' => [
@@ -140,6 +141,7 @@ class SwooleController extends \yii\console\Controller
 
             try {
                 $application = new Application($config);
+                //$application->getRequest()->setRawBody($request->rawContent());
                 yii::$app->getLog()->yiiBeginAt = $yiiBeginAt;
                 yii::$app->setAliases($aliases);
                 try {
@@ -148,6 +150,7 @@ class SwooleController extends \yii\console\Controller
 
                     $application->state = Application::STATE_HANDLING_REQUEST;
                     $yiiresponse = $application->handleRequest($application->getRequest());
+
 
                     $application->state = Application::STATE_AFTER_REQUEST;
                     $application->trigger(Application::EVENT_AFTER_REQUEST);
@@ -164,7 +167,7 @@ class SwooleController extends \yii\console\Controller
                 UploadedFile::reset();
                 yii::$app->getLog()->getLogger()->flush();
                 yii::$app->getLog()->getLogger()->flush(true);
-            }catch (\Exception $e){
+            } catch (\Exception $e) {
                 yii::$app->getErrorHandler()->handleException($e);
             }
         };
@@ -196,9 +199,9 @@ class SwooleController extends \yii\console\Controller
             $this->stderr("Server stopped timeout" . PHP_EOL);
             exit(1);
         }
-        if( $this->getPid() === false ){
+        if ($this->getPid() === false) {
             $this->stdout("Server is stopped success" . PHP_EOL);
-        }else{
+        } else {
             $this->stderr("Server stopped error, please handle kill process" . PHP_EOL);
         }
         $this->actionStart();
@@ -233,5 +236,4 @@ class SwooleController extends \yii\console\Controller
         }
         return false;
     }
-
 }
